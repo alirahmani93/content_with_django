@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    env_file:
+      - code/.env
+    restart: unless-stopped
+
+  web:
+    build: .
+    command: sh -c "python manage.py migrate &&
+      yes | python manage.py collectstatic --no-input &&
+      gunicorn ${PROJECT_NAME}.wsgi:application --workers=${GUNICORN_WORKERS} --timeout=${GUNICORN_TIMEOUT} --bind 0.0.0.0:${GUNICORN_PORT}"
+    restart: unless-stopped
+    env_file:
+      - code/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.23.0-alpine
+    ports:
+      - 80:80
+      - 443:443
+      - 888:888
+    restart: unless-stopped
+    container_name: ${PROJECT_NAME}-nginx
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - ./nginx/conf/:/etc/nginx/conf.d/:rw
+      - ./nginx/templates/:/etc/nginx/templates/:ro
+      - ../certbot/www:/var/www/certbot/:ro
+      - ../certbot/conf/:/etc/nginx/ssl/:ro
+    env_file:
+      - ./.env
+    depends_on:
+      - web
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "${WEB_PROTOCOL}://${SITE_URL}/api/health/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+  certbot:
+    # TODO: add an explicit tag for the image
+    image: certbot/certbot:latest
+    container_name: ${PROJECT_NAME}-certbot
+    volumes:
+      - ../certbot/www/:/var/www/certbot/:rw
+      - ../certbot/conf/:/etc/letsencrypt/:rw
+
+    env_file:
+      - ./.env
