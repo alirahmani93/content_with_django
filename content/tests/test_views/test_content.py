@@ -1,7 +1,11 @@
 from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from content.serializers import ContentSerializer
+from content.views import ContentViewSet
 
 
 class ContentTestCase(APITestCase):
@@ -20,5 +24,11 @@ class ContentTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), [
             {'title': 'test title 1', 'average_score': 4.0, 'count_score': 2},
-             {'title': 'test title 2', 'average_score': 1.0, 'count_score': 1}
+            {'title': 'test title 2', 'average_score': 1.0, 'count_score': 1}
         ])
+
+    def test_permission(self):
+        self.assertEqual(ContentViewSet.permission_classes, [IsAuthenticated])
+
+    def test_serializer(self):
+        self.assertEqual(ContentViewSet.serializer_class, ContentSerializer)
