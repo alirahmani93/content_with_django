@@ -51,7 +51,6 @@ services:
 
 
   certbot:
-    # TODO: add an explicit tag for the image
     image: certbot/certbot:latest
     container_name: ${PROJECT_NAME}-certbot
     volumes:
