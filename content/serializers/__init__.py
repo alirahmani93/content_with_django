@@ -1,0 +1,2 @@
+from content.serializers.content import ContentSerializer
+from content.serializers.content_score import ContentScoreSerializer

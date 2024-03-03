@@ -1,0 +1,2 @@
+from content.views.content_view import ContentViewSet
+from content.views.content_score_view import ContentScoreViewSet
