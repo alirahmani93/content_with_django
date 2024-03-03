@@ -14,5 +14,10 @@ class ContentViewSet(ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
+        """
+        authentication is required
+
+        :return: [{'title': str, 'average_score': float, 'count_score': int}]
+        """
         qs = self.get_queryset().ordered_avg_count_score()
         return Response(self.serializer_class(qs, many=True).data)

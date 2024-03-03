@@ -15,6 +15,12 @@ class ContentScoreViewSet(CreateModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
+        """
+        authentication is required
+        body: {"content": int, "score": int}
+
+        :return: {"content": int, "score": int}
+        """
         serializer = self.serializer_class(data=self.request.data)
         serializer.is_valid(raise_exception=True)
 
