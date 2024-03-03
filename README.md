@@ -22,6 +22,11 @@ Install requirements:
   pip install -r requirements
 ```
 
+Export Settings:
+```bash
+export DJANGO_SETTINGS_MODULE=bitpin.settings.development
+```
+
 Migrate files:
 
 ```bash
